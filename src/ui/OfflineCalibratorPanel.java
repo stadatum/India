@@ -106,6 +106,7 @@ public class OfflineCalibratorPanel {
 		
 		
 		// attach the buttons to button panel
+		buttonPanel.add(auto);
 		buttonPanel.add(readImages);
 		buttonPanel.add(getParameters);
 		buttonPanel.add(identifyCorners);
