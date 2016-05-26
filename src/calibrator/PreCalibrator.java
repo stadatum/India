@@ -108,7 +108,7 @@ public class PreCalibrator {
 		// Get list of images in the directory
 		ImageListMaker imlistMaker = new ImageListMaker();
 		imageNames = imlistMaker.getImagesList(directoryPath);
-		fullImageNames = new String[imageNames.length];
+		fullImageNames = new String[imageNames.length]; // Dynamic allocation seems to work.
 		
 		// Prepare full file path and returning the images
 		for (int i =0;i<imageNames.length;i++){
