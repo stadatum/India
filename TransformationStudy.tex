@@ -1,0 +1,25 @@
+\documentclass[14pt]{article}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\title{Understanding camera calibration}
+\author{  Balaji Sankar    }
+\begin{document}
+\maketitle
+\[
+\left( \begin{array}{c}
+x \\
+y \\
+1 \end{array} \right)  = s \times
+ \left( \begin{array}{ccc}
+f_x & 0 & c_x \\
+0 & f_y & c_y \\
+0 & 0 & 1 \end{array} \right) \times
+\left( \begin{array}{ccc}
+r_1 & r_2 & t \end{array} \right) \times
+\left( \begin{array}{c}
+X \\
+Y \\
+1 \end{array} \right)
+\] 
+
+\end{document}

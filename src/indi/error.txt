@@ -1,0 +1,10 @@
+ ChessBoardCalibrator :  Starting the calibrator.
+OpenCV Error: Assertion failed (ni == ni1) in cv::collectCalibrationData, file C:\builds\master_PackSlaveAddon-win64-vc12-static\opencv\modules\calib3d\src\calibration.cpp, line 3064
+Exception in thread "main" CvException [org.opencv.core.CvException: cv::Exception: C:\builds\master_PackSlaveAddon-win64-vc12-static\opencv\modules\calib3d\src\calibration.cpp:3064: error: (-215) ni == ni1 in function cv::collectCalibrationData
+]
+        at org.opencv.calib3d.Calib3d.calibrateCamera_1(Native Method)
+        at org.opencv.calib3d.Calib3d.calibrateCamera(Calib3d.java:442)
+        at calibrator.ChessBoardCalibrator.runCalibrator(ChessBoardCalibrator.java:126)
+        at calibrator.PreCalibrator.doCalibration(PreCalibrator.java:158)
+        at indi.India.<init>(India.java:47)
+        at indi.India.main(India.java:18)

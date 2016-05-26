@@ -1,0 +1,143 @@
+ private Mat applyIntrinsicExtrinsicTransformationsToTheChessBoardOmitZ(Mat chessBoard){
+		// Mat that will hold the transformed matrix
+		Mat transformedChess_1=  new Mat();
+		
+		for (int i=0;i<8;i++){
+			// X and Y are in mm in the real world. chess board is 150 mm wide, 100 mm tall
+			// Chess board origin is at the top left corner.
+			// Image origin is also at top left corner.
+			// Chess board origin and cmos origin coincide in x and y
+			
+			// Then the cx and cy are given to move the origin of the board in the image to the center of the image
+			// double [] t= {chessBoardWidth+randy.nextInt(90) , chessBoardHeight+randy.nextInt(90) , 1};
+			// double [] t= {randy.nextInt(40) , randy.nextInt(40) , randy.nextInt(40)};
+			double [] t= {0 , 0 , 0};
+			
+			// Oreilly learning open cv , page 379, 395/571
+			// Rotation about various axis
+			double rotationAboutX_degrees = 0;//randy.nextInt(60);
+			double rotationAboutY_degrees = i;//randy.nextInt(60);
+			double rotationAboutZ_degrees = 0;//randy.nextInt(60);
+			
+			// Intrinsics
+			double fx =100.0;
+			double fy =100.0;
+			double cx = 0;//chessBoardWidth*2;
+			double cy = 0;//chessBoardHeight*2;
+			
+			// Make the destination image all black
+			transformedChess_1 =  Mat.zeros(chessBoardHeight*4,chessBoardWidth*4,CvType.CV_8U);
+			double [][] Rx= {{1 , 0 , 0},{0 , Math.cos(Math.toRadians(rotationAboutX_degrees)) , Math.sin(Math.toRadians(rotationAboutX_degrees))},{0 , -Math.sin(Math.toRadians(rotationAboutX_degrees)) , Math.cos(Math.toRadians(rotationAboutX_degrees))}};
+			double [][] Ry= {{Math.cos(Math.toRadians(rotationAboutY_degrees)) , 0 , -Math.sin(Math.toRadians(rotationAboutY_degrees))},{0 , 1 , 0},{Math.sin(Math.toRadians(rotationAboutY_degrees)) , 0 , Math.cos(Math.toRadians(rotationAboutY_degrees))}};
+			double [][] Rz= {{Math.cos(Math.toRadians(rotationAboutZ_degrees)) , Math.sin(Math.toRadians(rotationAboutZ_degrees)) , 0},{-Math.sin(Math.toRadians(rotationAboutZ_degrees)) , Math.cos(Math.toRadians(rotationAboutZ_degrees)), 0},{0 , 0 , 1}};
+			
+			// Find the combined rotation matrix
+			double [][] R = multiplyMatrices(Rx,(multiplyMatrices(Ry,Rz)));
+			// Random initialisation of extrinsics
+			double [][] extrinsic = {{0, 0 , 0 , 0},{0, 0 , 0 , 0},{0, 0 , 0 , 0}};
+			
+			// Initialisation of intrinsics
+			double [][] intrinsic = {{fx, 0 , cx},{0, fy , cy},{0, 0 , 1}};
+			
+			// Apply the rotation to all elements of the chessBoard
+			for (int pixelCol=0;pixelCol<chessBoardWidth ;pixelCol++){
+				for (int pixelRow=0;pixelRow<chessBoardHeight ;pixelRow++){
+					
+					double [] XY1 = {pixelCol,pixelRow,100,1}; // all points are in plane z=0 and XY1 is in homogeneous coordinates. In this case if rotation about x is say 10 degrees, the bottom row of points are behind the chessboard in negative direction. Whne making homogeneous coordinates, the other two become negative. To avoid this give sufficient z coordinate in chessboard coordinate system itself.
+					// When calculating the vector, first can be column.
+					XY1[3] = 1; // Homogeneous part.
+					
+					// Form combined extrinsic from r1 and r2 of rotation and translation vector.
+					extrinsic[0][0] = R[0][0];
+					extrinsic[1][0] = R[1][0];
+					extrinsic[2][0] = R[2][0];
+					
+					extrinsic[0][1] = R[0][1];
+					extrinsic[1][1] = R[1][1];
+					extrinsic[2][1] = R[2][1];
+					
+					extrinsic[0][2] = R[0][2];
+					extrinsic[1][2] = R[1][2];
+					extrinsic[2][2] = R[2][2];
+					
+					extrinsic[0][3] = t[0];
+					extrinsic[1][3] = t[1];
+					extrinsic[2][3] = t[2];
+					
+					// Apply transformation to the world vector;
+					double [] temp=  multiplyMatrixVector(extrinsic, XY1);
+					temp=  multiplyMatrixVector(intrinsic, temp);
+					
+					// When putting inside the mat, first should be row.
+					transformedX = (temp[0]);
+					transformedY = (temp[1]);
+					transformedZ = (temp[2]);
+					
+					
+					// Getting the z coordinate into 1, for making it a 2d rep of 3d body, and 2d rep is in homogeneous coordinate
+					double homo_transformedX = (transformedX/transformedZ);
+					double homo_transformedY = (transformedY/transformedZ);
+					double homo_transformedZ = (transformedZ/transformedZ);
+					
+					//System.out.format("\n Original coordinates (r,c) " + 
+					//" = %d , %d are mapped to (r,c) = %f %f %f ",pixelRow,pixelCol,transformedY,transformedX,transformedZ);
+					//System.out.format("\n Homogeneous original coordinates (r,c) " +
+					//" = %d , %d are mapped to (r,c) = %f %f %f ",pixelRow,pixelCol,homo_transformedY,homo_transformedX,homo_transformedZ);
+					//System.out.format("\n Homogeneous original coordinates (r,c) " + 
+					//"= %d , %d are mapped to (r,c) = %d %d %d ",pixelRow,pixelCol,(int)homo_transformedY,(int)homo_transformedX,(int)homo_transformedZ);
+					
+					// Put wants row first.
+					transformedChess_1.put((int)(homo_transformedY),(int)(homo_transformedX),chessBoard.get(pixelRow,pixelCol));
+					
+				}
+			}
+			Imgcodecs.imwrite(".//images//TransformationStudy//tx="+t[0]+"ty="+t[1]+"tz="+t[2]+"Rx="+rotationAboutX_degrees+"Ry="+rotationAboutY_degrees+"Rz="+rotationAboutZ_degrees+".png",transformedChess_1);
+		}
+	return transformedChess_1;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	ImagePointsIdentifier imagePointsGetter= new ImagePointsIdentifier();
+		
+		
+		String[] imageName = {"tx=-200.0ty=-200.0tz=2200.0Rx=10.0Ry=0.0Rz=0.0.png"};
+		
+		
+		// String[] imageName = {"chessBoard.png"};
+		// We need number of black black intersection dots. not actual box count.
+		System.out.println("\n Started identifying corners on  " + imageName[0]);
+		imagePoints = imagePointsGetter.getAccurateImagePoints(imageName,rows, cols, imagePoints,directoryPath);
+		// imagePoints = imagePointsGetter.getApproximateImagePoints(imageName,rows, cols, imagePoints,directoryPath);
+		System.out.println("\n Finished identifying corners on  " + imageName[0]);
+		
+		// Draw the corners on the image
+		System.out.println("\n Started reprojecting identifying corners on  " + imageName);
+		ReprojectCorners reprojector = new ReprojectCorners( cols, rows);
+		reprojector.checkIdentifiedImagePoint(imageName,imagePoints,  directoryPath);
+		System.out.println("\n Finished reprojecting identifying corners on  " + imageName);
+		
+		
+		// System.out.println(" ReprojectCorners : ===============================================");
+		// System.out.println(" ReprojectCorners : Checking the identified image points on image " );
+		// String filePath = ".//images//TransformationStudy//chessBoard.png";
+		// System.out.println(" ReprojectCorners : Loading the image = " + filePath);
+		// Mat img = Imgcodecs.imread(filePath);
+		// MatOfPoint2f corners = new MatOfPoint2f(imagePoints.get(0));
+		// System.out.println(" ReprojectCorners : Corners of the im " + filePath + " size = " + corners.size());
+		// Calib3d.drawChessboardCorners(img, new Size(cols,rows), corners, true);
+		// System.out.println(" ReprojectCorners : Completed drawing the detected corners on the  image");
+		// filePath = ".//images//TransformationStudy//" + "reprojected.jpg";
+		// Imgcodecs.imwrite(filePath,img);
+		// System.out.println(" ReprojectCorners : Completed drawing the detected corners in"+filePath);
+		
+		
