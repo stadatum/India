@@ -44,24 +44,25 @@ public class India {
         PreCalibrator kaka = new PreCalibrator("synthetic");
 		
 		
-		// kaka.getImageList();
-		// // kaka.getParametersFromXml();
-		// kaka.identifyCornersInImage();
-		// kaka.drawIdentifiedCornersOnInputImages();
-		// kaka.generateWorld2dCoordinates();
-		// kaka.doCalibration();
-		// kaka.evaluateError();
+		kaka.getImageList();
+		// kaka.getParametersFromXml();
+		kaka.identifyCornersInImage();
+		kaka.drawIdentifiedCornersOnInputImages();
+		kaka.generateWorld2dCoordinates();
+		kaka.doCalibration();
+		kaka.evaluateError();
+		kaka.compareInputAndOutputTranslations();
 		
 		// // Generate binary pattern for a start.
 		// System.out.println("\n From India Constructor : Generating binary patterns ");
 		// BinaryPatternGenerator binaryPatternGenerator = new BinaryPatternGenerator (this);
 		
-		// Big Gui part
-		System.out.println("\n From Indi Constructor : ");
-        System.out.println("Creating GUI object");
-        Gui gui = new Gui(kaka);
-		Thread guiThread = new Thread(gui, "Gui for the India code.");
-        guiThread.start();
+		// // Big Gui part
+		// System.out.println("\n From Indi Constructor : ");
+        // System.out.println("Creating GUI object");
+        // Gui gui = new Gui(kaka);
+		// Thread guiThread = new Thread(gui, "Gui for the India code.");
+        // guiThread.start();
         
 		
 		

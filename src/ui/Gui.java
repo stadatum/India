@@ -86,7 +86,11 @@ public class Gui implements Runnable
 		
 		System.out.println("GUI: Basic requirements");
 		rootWindowFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		rootWindowFrame.setSize(1000, 768);
+		// Trying for full screen.
+		// http://stackoverflow.com/questions/11570356/jframe-in-full-screen-java
+		rootWindowFrame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+		// Fixed size.
+		// rootWindowFrame.setSize(1000, 768);
 		rootWindowFrame.setVisible(true);
 	}
 

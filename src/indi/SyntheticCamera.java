@@ -16,7 +16,6 @@ import calibrator.PreCalibrator; // To use imagelist identifier and corner finde
 
 public class SyntheticCamera {
 	
-	int debugFlag;
 	Random randy;
 	List<Mat> imagePoints = new ArrayList<Mat>();
 	Mat chessboard ;
@@ -25,14 +24,20 @@ public class SyntheticCamera {
 	int chessBoardHeight ;// These get assigned when chessboard gets formed for the first time.   
 	int numberOfBoxesInX ;// These get assigned when chessboard gets formed for the first time.   
 	int numberOfBoxesInY ;// These get assigned when chessboard gets formed for the first time.   
+	int numberOfImages   ;// Number of images to generate.
+	double [][] t,r; // Translation and rotation vectors.
+	double rotationAboutX_degrees=0;
+	double rotationAboutY_degrees=0;
+	double rotationAboutZ_degrees=0;
+			
 	
 	
 	// constructor
-	public SyntheticCamera(int debugFlag){
+	public SyntheticCamera(int numberOfImages){
 		
-		// Debug flag for output
-		this.debugFlag = debugFlag;
-		
+		this.numberOfImages = numberOfImages;
+		t = new double[numberOfImages][3];
+		r = new double[numberOfImages][3];
 		System.out.println("\n From SyntheticCamera Constructor : ");
 		
 		// make a random number generator;
@@ -40,12 +45,21 @@ public class SyntheticCamera {
 		
 	}
 	
+	public double[][] getRotationVectorsUsedInImageGeneration(){
+		return r;
+	}
+	
+	public double[][] getTranslationVectorsUsedInImageGeneration(){
+		return t;
+	}
 	
 	public void applyIntrinsicExtrinsicTransformationsToTheChessBoardAndSaveImagesToSynthetic(int imageHeight,int imageWidth, double fxGuess,double fyGuess){
 		// Mat that will hold the transformed matrix
 		Mat transformedChess_1=  new Mat();
 		
-		for (int i=0;i<10;i=i+1){ 
+		for (int i=0;i<numberOfImages;i=i+1){
+			System.out.format("\n First generating translation and rot vector 2d arrays.");
+			
 			System.out.format("\n Generating image %d with extrinsic and intrinsic transformations. ",i);
 			// X and Y are in mm in the real world. chess board is 150 mm wide, 100 mm tall
 			// Chess board origin is at the top left corner.
@@ -53,19 +67,21 @@ public class SyntheticCamera {
 			// Chess board origin and cmos origin coincide in x and y
 			
 			// Then the cx and cy are given to move the origin of the board in the image to the center of the image
-			double [] t= {-400+randy.nextInt(30),-400+randy.nextInt(30), 1000+randy.nextInt(20)}; // All images are between 0.9m and 1.0m
+			 t[i][0]= -400+randy.nextInt(30);
+			 t[i][1]= -400+randy.nextInt(30);
+			 t[i][2]= 1000+randy.nextInt(20); // All images are between 0.9m and 1.0m
 			// double [] t= {-200,-200, 1200+i}; // All images are between 0.9m and 1.0m
 			
 			
 			// Oreilly learning open cv , page 379, 395/571
 			// Rotation about various axis
-			double rotationAboutX_degrees=0;
-			double rotationAboutY_degrees=0;
-			double rotationAboutZ_degrees=0;
+			r[i][0] = randy.nextInt(10);
+			r[i][1] = randy.nextInt(10);
+			r[i][2] = randy.nextInt(10);
 			
-			rotationAboutX_degrees = randy.nextInt(10);
-			rotationAboutY_degrees = randy.nextInt(10);
-			rotationAboutZ_degrees = randy.nextInt(10);
+			rotationAboutX_degrees = r[i][0];
+			rotationAboutY_degrees = r[i][1];
+			rotationAboutZ_degrees = r[i][2];
 				
 			// if (i<2*5){
 			// 	rotationAboutX_degrees = 1*i;//randy.nextInt(60);
@@ -131,9 +147,9 @@ public class SyntheticCamera {
 					extrinsic[1][2] = R[1][2];
 					extrinsic[2][2] = R[2][2];
 					
-					extrinsic[0][3] = t[0];
-					extrinsic[1][3] = t[1];
-					extrinsic[2][3] = t[2];
+					extrinsic[0][3] = t[i][0];
+					extrinsic[1][3] = t[i][1];
+					extrinsic[2][3] = t[i][2];
 					
 					// Apply transformation to the world vector;
 					double [] temp=  multiplyMatrixVector(extrinsic, XY1);
@@ -162,7 +178,7 @@ public class SyntheticCamera {
 					
 				}
 			}
-			Imgcodecs.imwrite(".//images//TransformationStudy//input" +i+"_tx="+t[0]+"ty="+t[1]+"tz="+t[2]+"Rx="+rotationAboutX_degrees+"Ry="+rotationAboutY_degrees+"Rz="+rotationAboutZ_degrees+".jpg",transformedChess_1);
+			Imgcodecs.imwrite(".//images//TransformationStudy//input" +i+"_tx="+t[i][0]+"ty="+t[i][1]+"tz="+t[i][2]+"Rx="+rotationAboutX_degrees+"Ry="+rotationAboutY_degrees+"Rz="+rotationAboutZ_degrees+".jpg",transformedChess_1);
 		}
 	}
 	

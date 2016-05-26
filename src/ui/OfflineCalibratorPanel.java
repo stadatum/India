@@ -10,6 +10,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.Image; // To resize the images in icon.
+import java.awt.Dimension ; // to set preferred size of jpanel.
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -150,9 +151,11 @@ public class OfflineCalibratorPanel {
 				// lbl.setBounds(10,10,100,100);
 				
 				// Trick to resize image from http://stackoverflow.com/questions/16343098/resize-a-picture-to-fit-a-jlabel
-				lbl.setIcon(new ImageIcon(new ImageIcon(imageList[i]).getImage().getScaledInstance(20, 20, Image.SCALE_DEFAULT)));
-				
-				galleryPanel.add(lbl);
+				lbl.setIcon(new ImageIcon(new ImageIcon(imageList[i]).getImage().getScaledInstance(100, 100, Image.SCALE_DEFAULT)));
+				// To make the icons to go the next line when they reach the border.
+				// http://www.coderanch.com/t/344096/GUI/java/flow-lay-force-add-component
+				galleryPanel.setPreferredSize(new Dimension(1000, 900));
+				galleryPanel.add(lbl); // Set griclayout next time.
 			}
 			galleryPanelScroll = new JScrollPane (galleryPanel);
 			centerPanel.add(BorderLayout.SOUTH,galleryPanelScroll);

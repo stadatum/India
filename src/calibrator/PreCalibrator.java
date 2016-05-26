@@ -23,6 +23,9 @@ public class PreCalibrator {
 	String images2use_shadowScan = "shadowScan";
 	String images2use_synthetic = "synthetic";
 	String directoryPath;
+	double [][] inputTranslations;
+	double [][] inputRotations   ;
+	
 
 	// Matrices that store the detected points matrix and the camera caliberation matrix
 	List<Mat> objectPoints = new ArrayList<Mat>();
@@ -87,10 +90,14 @@ public class PreCalibrator {
 			
 			// If using the synthetic images, also generate them.
 			System.out.println("\n From PreCalibrator Constructor : All parameters of the fake chessboard are hardcoded in PreCalibrator Constructor ");
-			SyntheticCamera synCam = new SyntheticCamera(0); // 0 is the debug flag.
+			SyntheticCamera synCam = new SyntheticCamera(10); // Generate 10 images.
 			synCam.generateChessBoardPattern((int)squareSize,(int)squareSize,rows,cols);
 			System.out.println("\n From PreCalibrator Constructor : All parameters of the fake camera and the transRots of each image are hard coded in the transformation code itself");
 			synCam. applyIntrinsicExtrinsicTransformationsToTheChessBoardAndSaveImagesToSynthetic(imageHeight,imageWidth,fxGuess,fyGuess);
+			inputTranslations = synCam.getTranslationVectorsUsedInImageGeneration(); 
+			inputRotations    = synCam.getRotationVectorsUsedInImageGeneration();
+			
+			
 
 		}
 		else
@@ -112,7 +119,6 @@ public class PreCalibrator {
 		
 		// Prepare full file path and returning the images
 		for (int i =0;i<imageNames.length;i++){
-			
 			fullImageNames[i] = directoryPath + imageNames[i];
 		}
 		
@@ -122,7 +128,6 @@ public class PreCalibrator {
 		// sc.next();
 	}
 	public String[] getFullImageNames() {
-		
 		return fullImageNames;
 	}
 
@@ -153,7 +158,7 @@ public class PreCalibrator {
 		GenerateChessBoardWorldCorners_offsetStart objectPointsGen = new GenerateChessBoardWorldCorners_offsetStart(rows, cols, squareSize, imageNames.length, objectPoints);
 		System.out.println("PreCalibrator: Generating world points with rows =  " + rows);
 		System.out.println("PreCalibrator: Generating world points with cols =  " + cols);
-		System.out.println("PreCalibrator: Generating world points with size =  " + squareSize);
+		System.out.println("PreCalibrator: Generating world points with square size =  " + squareSize);
 		objectPoints = objectPointsGen.getObjectPoints();
 		System.out.println("PreCalibrator: Finished generating world points");
 		// System.out.println("Press enter to continue");
@@ -181,10 +186,45 @@ public class PreCalibrator {
 		// Reproject the object points using the obtained matrices and recreate the photos
 		Reprojector myReprojector = new Reprojector();
 		double finalError = myReprojector.reprojectTheObjectPoints(objectPoints, imagePoints, distortionCoefficients, cameraMatrix, rvecs, tvecs, perViewErrors,imageNames,directoryPath, new Size(cols,rows));
-		System.out.println("Press enter to continue");
-		sc.next();
+		// System.out.println("Press enter to continue");
+		// sc.next();
+		System.out.println("Good luck man :-)");
 		return finalError;
 	}
+	
+	public void compareInputAndOutputTranslations(){
+		double [][] outputTranslations = new double [inputTranslations.length][3];
+		
+		// First get value from the mat form into the output translation array.
+		for (int i=0;i<imagePoints.size();i++){
+			
+			// tvecs.get(i) returns a mat haveing 3 rows and one col
+			// .get(0,0)    returns the data at the first row and col of the mat. which is a double array of size 1
+			// [0]          returns the first element of the 2d array.
+			
+			
+			outputTranslations [i][0] = tvecs.get(i).get(0,0)[0]; // Only one element is there.
+			outputTranslations [i][1] = tvecs.get(i).get(1,0)[0]; // Only one element is there.
+			outputTranslations [i][2] = tvecs.get(i).get(2,0)[0]; // Only one element is there.
+			System.out.println("\n compare IO X " + i +" i = "+inputTranslations[i][0]+" o = "+outputTranslations[i][0]);
+			System.out.println("\n compare IO Y " + i +" i = "+inputTranslations[i][1]+" o = "+outputTranslations[i][1]);
+			System.out.println("\n compare IO Z " + i +" i = "+inputTranslations[i][2]+" o = "+outputTranslations[i][2]);
+		}
+		System.out.println("\n compare Input and output values of translation x for all images.");
+		for (int i=0;i<imagePoints.size();i++){
+			System.out.println(" "+inputTranslations[i][0]+"  "+outputTranslations[i][0]);
+		}
+		System.out.println("\n compare Input and output values of translation y for all images.");
+		for (int i=0;i<imagePoints.size();i++){
+			System.out.println(" "+inputTranslations[i][1]+"  "+outputTranslations[i][1]);
+		}
+		System.out.println("\n compare Input and output values of translation z for all images.");
+		for (int i=0;i<imagePoints.size();i++){
+			System.out.println(" "+inputTranslations[i][2]+"  "+outputTranslations[i][2]);
+		}
+		
+	}
+	
 	public void getParametersFromXml()
 	{
 		// Major assignments
