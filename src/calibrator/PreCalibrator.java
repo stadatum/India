@@ -3,6 +3,9 @@ package calibrator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.io.IOException;
 
 import javax.swing.JPanel;
 
@@ -90,7 +93,7 @@ public class PreCalibrator {
 			
 			// If using the synthetic images, also generate them.
 			System.out.println("\n From PreCalibrator Constructor : All parameters of the fake chessboard are hardcoded in PreCalibrator Constructor ");
-			SyntheticCamera synCam = new SyntheticCamera(10); // Generate 10 images.
+			SyntheticCamera synCam = new SyntheticCamera(15); // Generate 10 images.
 			synCam.generateChessBoardPattern((int)squareSize,(int)squareSize,rows,cols);
 			System.out.println("\n From PreCalibrator Constructor : All parameters of the fake camera and the transRots of each image are hard coded in the transformation code itself");
 			synCam. applyIntrinsicExtrinsicTransformationsToTheChessBoardAndSaveImagesToSynthetic(imageHeight,imageWidth,fxGuess,fyGuess);
@@ -192,8 +195,24 @@ public class PreCalibrator {
 		return finalError;
 	}
 	
-	public void compareInputAndOutputTranslations(){
+	public void compareInputAndOutputTranslationsAndRotations(){
+		
+		Boolean append2file = false;
+		FileWriter fileWriter = null;
+		PrintWriter printWriter = null;
+		try{
+			fileWriter = new FileWriter("./images/inputOutputComparison.csv",append2file);
+			
+		}
+		catch (IOException e){
+			System.out.println("\n Error when creating file for writing input output comparison");
+			e.printStackTrace();
+		}
+		printWriter = new PrintWriter (fileWriter);
+		
+		
 		double [][] outputTranslations = new double [inputTranslations.length][3];
+		double [][] outputRotations    = new double [inputRotations.length][3];
 		
 		// First get value from the mat form into the output translation array.
 		for (int i=0;i<imagePoints.size();i++){
@@ -206,22 +225,55 @@ public class PreCalibrator {
 			outputTranslations [i][0] = tvecs.get(i).get(0,0)[0]; // Only one element is there.
 			outputTranslations [i][1] = tvecs.get(i).get(1,0)[0]; // Only one element is there.
 			outputTranslations [i][2] = tvecs.get(i).get(2,0)[0]; // Only one element is there.
-			System.out.println("\n compare IO X " + i +" i = "+inputTranslations[i][0]+" o = "+outputTranslations[i][0]);
-			System.out.println("\n compare IO Y " + i +" i = "+inputTranslations[i][1]+" o = "+outputTranslations[i][1]);
-			System.out.println("\n compare IO Z " + i +" i = "+inputTranslations[i][2]+" o = "+outputTranslations[i][2]);
+			outputRotations [i][0] = rvecs.get(i).get(0,0)[0]; // Only one element is there.
+			outputRotations [i][1] = rvecs.get(i).get(1,0)[0]; // Only one element is there.
+			outputRotations [i][2] = rvecs.get(i).get(2,0)[0]; // Only one element is there.
+			System.out.println("\n compare IO TX " + i +" i = "+inputTranslations[i][0]+" o = "+outputTranslations[i][0]);
+			System.out.println("\n compare IO TY " + i +" i = "+inputTranslations[i][1]+" o = "+outputTranslations[i][1]);
+			System.out.println("\n compare IO TZ " + i +" i = "+inputTranslations[i][2]+" o = "+outputTranslations[i][2]);
+			System.out.println("\n compare IO RX " + i +" i = "+inputRotations[i][0]+" o = "+outputRotations[i][0]);
+			System.out.println("\n compare IO RY " + i +" i = "+inputRotations[i][1]+" o = "+outputRotations[i][1]);
+			System.out.println("\n compare IO RZ " + i +" i = "+inputRotations[i][2]+" o = "+outputRotations[i][2]);
 		}
 		System.out.println("\n compare Input and output values of translation x for all images.");
+		printWriter.print("\n # Compare Input and output values of translation x for all images.");
 		for (int i=0;i<imagePoints.size();i++){
 			System.out.println(" "+inputTranslations[i][0]+"  "+outputTranslations[i][0]);
+			printWriter.print("\n "+inputTranslations[i][0]+"  "+outputTranslations[i][0]);
 		}
 		System.out.println("\n compare Input and output values of translation y for all images.");
+		printWriter.print("\n # Compare Input and output values of translation y for all images.");
 		for (int i=0;i<imagePoints.size();i++){
 			System.out.println(" "+inputTranslations[i][1]+"  "+outputTranslations[i][1]);
+			printWriter.print("\n "+inputTranslations[i][1]+"  "+outputTranslations[i][1]);
 		}
 		System.out.println("\n compare Input and output values of translation z for all images.");
+		printWriter.print("\n # Compare Input and output values of translation z for all images.");
 		for (int i=0;i<imagePoints.size();i++){
 			System.out.println(" "+inputTranslations[i][2]+"  "+outputTranslations[i][2]);
+			printWriter.print("\n "+inputTranslations[i][2]+"  "+outputTranslations[i][2]);
 		}
+		
+		System.out.println("\n compare Input and output values of rotation x for all images.");
+		printWriter.print("\n # Compare Input and output values of rotation x for all images.");
+		for (int i=0;i<imagePoints.size();i++){
+			System.out.println(" "+inputRotations[i][0]+"  "+outputRotations[i][0]);
+			printWriter.print("\n "+inputRotations[i][0]+"  "+outputRotations[i][0]);
+		}
+		System.out.println("\n compare Input and output values of rotation y for all images.");
+		printWriter.print("\n # Compare Input and output values of rotation y for all images.");
+		for (int i=0;i<imagePoints.size();i++){
+			System.out.println(" "+inputRotations[i][1]+"  "+outputRotations[i][1]);
+			printWriter.print("\n "+inputRotations[i][1]+"  "+outputRotations[i][1]);
+		}
+		System.out.println("\n compare Input and output values of rotation z for all images.");
+		printWriter.print("\n # Compare Input and output values of rotation z for all images.");
+		for (int i=0;i<imagePoints.size();i++){
+			System.out.println(" "+inputRotations[i][2]+"  "+outputRotations[i][2]);
+			printWriter.print("\n "+inputRotations[i][2]+"  "+outputRotations[i][2]);
+		}
+		
+		printWriter.close();
 		
 	}
 	

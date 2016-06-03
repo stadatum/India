@@ -119,7 +119,9 @@ public class SyntheticCamera {
 			double [][] Rz= {{Math.cos(Math.toRadians(rotationAboutZ_degrees)) , Math.sin(Math.toRadians(rotationAboutZ_degrees)) , 0},{-Math.sin(Math.toRadians(rotationAboutZ_degrees)) , Math.cos(Math.toRadians(rotationAboutZ_degrees)), 0},{0 , 0 , 1}};
 			
 			// Find the combined rotation matrix
+			// First rotation is about z , then about new y and finally about latest x.
 			double [][] R = multiplyMatrices(Rx,(multiplyMatrices(Ry,Rz)));
+			//R = multiplyMatrices(Rz,(multiplyMatrices(Ry,Rx)));
 			// Random initialisation of extrinsics
 			double [][] extrinsic = {{0, 0 , 0 , 0},{0, 0 , 0 , 0},{0, 0 , 0 , 0}};
 			

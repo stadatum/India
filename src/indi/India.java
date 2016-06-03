@@ -3,6 +3,8 @@ package indi;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
+import java.lang.Process ; // For running python from java
+import java.io.IOException;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -51,7 +53,18 @@ public class India {
 		kaka.generateWorld2dCoordinates();
 		kaka.doCalibration();
 		kaka.evaluateError();
-		kaka.compareInputAndOutputTranslations();
+		kaka.compareInputAndOutputTranslationsAndRotations();
+		
+		// Python plot
+		try{
+			Process p = Runtime.getRuntime().exec ("python plotInputOutputTranslations.py");
+		}
+		catch (IOException e){
+			System.err.println("Problem in running python code from java");
+			System.exit(1);
+			
+		}
+		
 		
 		// // Generate binary pattern for a start.
 		// System.out.println("\n From India Constructor : Generating binary patterns ");
